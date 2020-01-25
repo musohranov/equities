@@ -105,4 +105,7 @@ class InvalidCmdParams(Exception):
     """
     Исключение 'Не верные параметры команды'
     """
-    pass
+    def __init__(self):
+        """
+        """
+        super().__init__(f'Параметры команды введены не верно!')

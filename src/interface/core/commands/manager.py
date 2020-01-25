@@ -30,8 +30,8 @@ def run_cmd(cmd_name, cmd_params):
         if cmd_name.lower() in ([c.lower() for c in cmd.get_names()]):
             try:
                 return cmd.run(cmd_params)
-            except InvalidCmdParams:
-                return ['Ошибка! Параметры команды введены не верно!', ''] + cmd.run(['?'])
+            except InvalidCmdParams as err:
+                return [f'Ошибка! {str(err)}', ''] + cmd.run(['?'])
 
     raise UnknownCmd(cmd_name)
 
