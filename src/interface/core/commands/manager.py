@@ -7,7 +7,11 @@ class UnknownCmd(Exception):
     """
     Исключение 'Неизвестная команда'
     """
-    pass
+    def __init__(self, name):
+        """
+        :param str name: Название команды.
+        """
+        super().__init__(f'Команда "{name}" не найдена!')
 
 
 def run_cmd(cmd_name, cmd_params):
@@ -29,7 +33,7 @@ def run_cmd(cmd_name, cmd_params):
             except InvalidCmdParams:
                 return ['Ошибка! Параметры команды введены не верно!', ''] + cmd.run(['?'])
 
-    raise UnknownCmd()
+    raise UnknownCmd(cmd_name)
 
 
 class _Help(Cmd):
@@ -60,15 +64,14 @@ class _Help(Cmd):
         """
 
         if self._result is None:
-            result = ['Список доступных команд:']
+            result = [f'Перечень команд (для детального описание выполните команду с параметром "{CMD_PARAM_HELP}"):']
+
             for cmd in _CMD_LIST:
                 cmd_name, cmd_description, cmd_syntax = cmd.get_name(), cmd.get_description(), cmd.get_syntax()
-
                 cmd_result = f'- {cmd_name}, {cmd_description}'
 
                 result.append(cmd_result)
 
-            result.append(f'/// Для детального описания синтаксиса команды, выполните "имя_команды {CMD_PARAM_HELP}"')
             self._result = result
 
         return self._result

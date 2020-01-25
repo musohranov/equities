@@ -1,8 +1,9 @@
 """
-Реализация приложения в виде 'интерфейса командной строки'.
-Для получения полного списка поддерживаемых команд, воспользуйтесь командой help.
+Реализация приложения в виде интерфейса командной строки.
 """
 
+import sys
+from os import linesep
 from src.interface.core.commands.manager import run_cmd, run_help_cmd, UnknownCmd
 
 
@@ -11,35 +12,24 @@ def run():
     Запустить приложение.
     """
 
-    while True:
-        print('>> Введите команду: ', end='')
+    if len(sys.argv) <= 1:
+        _print_result_cmd(run_help_cmd())
+        return
 
-        input_str = input()
-        _print_new_line()
+    try:
+        _print_result_cmd(run_cmd(sys.argv[1], sys.argv[2:]))
 
-        cmd_name = ''
-        try:
-            if input_str:
-                cmd_name = input_str.split()[0]
-                result_list = run_cmd(cmd_name, input_str.split()[1:])
-            else:
-                result_list = run_help_cmd()
-
-        except UnknownCmd:
-            print(f'Ошибка! Команда "{cmd_name}" не найдена!\n')
-            result_list = run_help_cmd()
-
-        for result in result_list:
-            print(result)
-
-        _print_new_line()
+    except UnknownCmd as err:
+        print(f'Ошибка! {str(err)}')
+        _print_result_cmd(run_help_cmd())
 
 
-def _print_new_line():
+def _print_result_cmd(str_list):
     """
-    Вывести пустую строку
+    Вывести результат выполнения команды
+    :param list[str] str_list: Список строк
     """
-    print('')
+    print(linesep.join(str_list))
 
 
 if __name__ == '__main__':
