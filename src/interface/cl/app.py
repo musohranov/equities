@@ -1,15 +1,16 @@
 """
-Приложение интерфейса командной строки.
+Реализация интерфейса 'командная строка'.
 """
 
 import sys
 from os import linesep
+from typing import List
 from src.interface.core.commands.manager import run_cmd, run_help_cmd, UnknownCmd
 
 
 def run():
     """
-    Запустить приложение.
+    Запустить обработку параметров командной строки.
     """
 
     if len(sys.argv) <= 1:
@@ -24,7 +25,7 @@ def run():
         _print_result_cmd(run_help_cmd())
 
 
-def _print_result_cmd(str_list):
+def _print_result_cmd(str_list: List[str]):
     """
     Вывести результат выполнения команды
     :param list[str] str_list: Список строк

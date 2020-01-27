@@ -1,3 +1,11 @@
+"""
+Менеджер команд, предоставляет:
+ * Найти и выполнить команду
+ * Выполнить команду 'Помощь'
+"""
+
+from typing import List
+
 from src.interface.core.commands.cmd import Cmd, InvalidCmdParams, CMD_PARAM_HELP
 from src.interface.core.commands.reference.find import Find
 from src.interface.core.commands.reference.price import Price
@@ -7,22 +15,20 @@ class UnknownCmd(Exception):
     """
     Исключение 'Неизвестная команда'
     """
-    def __init__(self, name):
+    def __init__(self, name: str):
         """
-        :param str name: Название команды.
+        :param name: Название команды.
         """
         super().__init__(f'Команда "{name}" не найдена!')
 
 
-def run_cmd(cmd_name, cmd_params):
+def run_cmd(cmd_name: str, cmd_params: List[str]) -> List[str]:
     """
     Выполнить команду. Формат командной строки: <имя_команды> + [параметры]
 
-    :param str cmd_name: Имя команды
-    :param list[str] cmd_params:  Параметры команды
-    :rtype: list[str]
+    :param cmd_name: Имя команды
+    :param cmd_params:  Параметры команды
     :raise: UnknownCmd
-
     :return: Результат выполнения команды
     """
 
@@ -67,7 +73,7 @@ class _Help(Cmd):
             result = [f'Перечень команд (для детального описание выполните команду с параметром "{CMD_PARAM_HELP}"):']
 
             for cmd in _CMD_LIST:
-                cmd_name, cmd_description, cmd_syntax = cmd.get_name(), cmd.get_description(), cmd.get_syntax()
+                cmd_name, cmd_description = cmd.get_name(), cmd.get_description()
                 cmd_result = f'- {cmd_name}, {cmd_description}'
 
                 result.append(cmd_result)
@@ -81,9 +87,8 @@ _CMD_HELP = _Help()
 _CMD_LIST = (_CMD_HELP, Find(), Price())
 
 
-def run_help_cmd():
+def run_help_cmd() -> List[str]:
     """
-    Выполнить команду 'Помощь'.
-    :rtype: list[str]
+    Выполнить команду 'Помощь'
     """
     return _CMD_HELP.run([])
