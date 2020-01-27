@@ -1,0 +1,21 @@
+<html>
+<head>
+	<title>Информация о российских акциях</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+	<form action="" method="post">
+		<label><b>Введите команду</b></label>
+		<input type="text" name="cl" autofocus style="width: 300px;">
+		<input type="submit">
+	</form>
+
+	{% if command_line %}
+	<p style="color: gray;">> {{command_line}}</p>
+	{% endif %}
+
+	{% for result in result_list %}
+	<p>{{result}}</p>
+	{% endfor %}
+</body>
+</html>
