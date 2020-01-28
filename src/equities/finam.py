@@ -74,7 +74,7 @@ class NotFoundIssuer(Exception):
     pass
 
 
-def get_price(issuer_code: str, dt_left: datetime, dt_right: datetime) -> List[Price]:
+def get_price(issuer_code: str, dt_left: datetime.date, dt_right: datetime.date) -> List[Price]:
     """
     Получить курс за временной отрезок.
 

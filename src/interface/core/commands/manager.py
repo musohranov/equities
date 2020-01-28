@@ -54,19 +54,16 @@ class _Help(Cmd):
 
         self._result = None
 
-    def _get_aliases(self):
+    def _get_aliases(self) -> List[str]:
         """
         Получить список синонимов
-        :rtype: list[str]
         """
         return ['h', '?']
 
-    def _run(self, params):
+    def _run(self, params: List[str]) -> List[str]:
         """
-        Выполнить команду.
-        :param list[str] params: Параметры
-        :rtype: list[str]
-        :return: Игнорируются переданные параметры и возвращается перечень возможных команд с описанием синтаксиса
+        Получить список поддерживаемых команд с описанием синтаксиса
+        :param params: Параметры
         """
 
         if self._result is None:

@@ -38,19 +38,19 @@ class Cmd(ABC):
 
     def get_name(self) -> str:
         """
-        Получить название.
+        Получить название
         """
         return self._name
 
     def get_description(self) -> str:
         """
-        Получить описание.
+        Получить описание
         """
         return self._description
 
     def get_syntax(self) -> str:
         """
-        Получить синтаксис.
+        Получить синтаксис
         """
         return self._syntax
 
@@ -62,18 +62,18 @@ class Cmd(ABC):
 
     def get_names(self) -> List[str]:
         """
-        Получить список имен с учетом синонимов.
+        Получить список имен с учетом синонимов
         """
         return self._names
 
     def run(self, params) -> List[str]:
         """
         Выполнить команду
-        :param list[str] params: Параметры
 
+        :param list[str] params: Параметры
         :raise: InvalidCmdParams
 
-        :return: Результат выполнения команды, или синтаксис команды если переданный параметр "?"
+        :return: Результат выполнения команды, или синтаксис команды если переданный параметр равен '?'
         """
 
         if len(params) == 1 and params[0] == CMD_PARAM_HELP and self._syntax:
@@ -82,10 +82,10 @@ class Cmd(ABC):
 
         return self._run(params)
 
-    def _run(self, params) -> List[str]:
+    def _run(self, params: List[str]) -> List[str]:
         """
-        Выполнить команду
-        :param list[str] params: Параметры
+        Реализация выполнения команды
+        :param params: Параметры
         :raise: InvalidCmdParams
         """
         raise NotImplementedError()
