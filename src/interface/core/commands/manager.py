@@ -89,7 +89,7 @@ def _run_help(_: List[str]) -> List[str]:
 
     result = [f'Перечень команд (для детального описание выполните команду с параметром "{CMD_PARAM_HELP}"):']
 
-    for cmd in Manager.get_cmd_list():
+    for cmd in sorted(Manager.get_cmd_list(), key=lambda c: c.get_name()):
         cmd_name, cmd_description = cmd.get_name(), cmd.get_description()
         cmd_result = f'- {cmd_name}, {cmd_description}'
 
