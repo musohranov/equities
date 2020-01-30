@@ -1,14 +1,12 @@
 """
 Менеджер команд, предоставляет:
- * Найти и выполнить команду
- * Выполнить команду 'Помощь'
+ * Декоратор для регистрации команды
+ * Поиск и выполненеи команды по входным данным
+ * Команду помощи
 """
 
-from typing import List
-
+from typing import List, Callable
 from src.interface.core.commands.cmd import Cmd, InvalidCmdParams, CMD_PARAM_HELP
-from src.interface.core.commands.reference.find import Find
-from src.interface.core.commands.reference.price import Price
 
 
 class UnknownCmd(Exception):
@@ -22,70 +20,79 @@ class UnknownCmd(Exception):
         super().__init__(f'Команда "{name}" не найдена!')
 
 
-def run_cmd(cmd_name: str, cmd_params: List[str]) -> List[str]:
+class Manager:
     """
-    Выполнить команду. Формат командной строки: <имя_команды> + [параметры]
-
-    :param cmd_name: Имя команды
-    :param cmd_params:  Параметры команды
-    :raise: UnknownCmd
-    :return: Результат выполнения команды
+    Менеджер команд
     """
 
-    for cmd in _CMD_LIST:
-        if cmd_name.lower() in ([c.lower() for c in cmd.get_names()]):
-            try:
-                return cmd.run(cmd_params)
-            except InvalidCmdParams as err:
-                return [f'Ошибка! {str(err)}', ''] + cmd.run(['?'])
+    _cmd_list = {}
 
-    raise UnknownCmd(cmd_name)
-
-
-class _Help(Cmd):
-    """
-    Команда 'Помощь'
-    """
-
-    def __init__(self):
-        super().__init__('help',
-                         'Получить список команд',
-                         '')
-
-        self._result = None
-
-    def _get_aliases(self) -> List[str]:
+    @classmethod
+    def register(cls, name: str, aliases: List[str], description: str, syntax: str) -> Callable:
         """
-        Получить список синонимов
-        """
-        return ['h', '?']
+        Декоратор регистрации команды
 
-    def _run(self, params: List[str]) -> List[str]:
-        """
-        Получить список поддерживаемых команд с описанием синтаксиса
-        :param params: Параметры
+        :param name: Название команды
+        :param aliases: Синонинмы
+        :param description: Описание
+        :param syntax: Синтаксис
         """
 
-        if self._result is None:
-            result = [f'Перечень команд (для детального описание выполните команду с параметром "{CMD_PARAM_HELP}"):']
+        def decorator(func: Callable):
+            cmd = Cmd(name, aliases, description, syntax, func)
+            for alias in [name] + aliases:
+                cls._cmd_list[alias.lower()] = cmd
+        return decorator
 
-            for cmd in _CMD_LIST:
-                cmd_name, cmd_description = cmd.get_name(), cmd.get_description()
-                cmd_result = f'- {cmd_name}, {cmd_description}'
+    @classmethod
+    def run_cmd(cls, cmd_name: str, cmd_params: List[str]) -> List[str]:
+        """
+        Выполнить команду. Формат командной строки: <имя_команды> + [параметры]
 
-                result.append(cmd_result)
+        :param cmd_name: Имя команды
+        :param cmd_params:  Параметры команды
+        :raise: UnknownCmd
+        :return: Результат выполнения команды
+        """
 
-            self._result = result
+        if cmd_name.lower() not in Manager._cmd_list:
+            raise UnknownCmd(cmd_name)
 
-        return self._result
+        cmd = cls._cmd_list[cmd_name]
+
+        try:
+            return cmd.run(cmd_params)
+        except InvalidCmdParams as err:
+            return [f'Ошибка! {str(err)}', ''] + cmd.run(['?'])
+
+    @classmethod
+    def help(cls) -> List[str]:
+        """
+        Выполнить команду 'Помощь'
+        """
+        return cls._cmd_list['help'].run([])
+
+    @classmethod
+    def get_cmd_list(cls) -> List[Cmd]:
+        """
+        Получить список команд
+        """
+        return list(set(cls._cmd_list.values()))
 
 
-_CMD_HELP = _Help()
-_CMD_LIST = (_CMD_HELP, Find(), Price())
-
-
-def run_help_cmd() -> List[str]:
+@Manager.register('help', ['h', '?'], 'Получить список команд', '')
+def _run_help(_: List[str]) -> List[str]:
     """
-    Выполнить команду 'Помощь'
+    Получить список поддерживаемых команд с описанием синтаксиса
+    :param _: Параметры.
     """
-    return _CMD_HELP.run([])
+
+    result = [f'Перечень команд (для детального описание выполните команду с параметром "{CMD_PARAM_HELP}"):']
+
+    for cmd in Manager.get_cmd_list():
+        cmd_name, cmd_description = cmd.get_name(), cmd.get_description()
+        cmd_result = f'- {cmd_name}, {cmd_description}'
+
+        result.append(cmd_result)
+
+    return result

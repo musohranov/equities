@@ -1,23 +1,24 @@
 """
-Декларация интерфейса команды:
- * Получить имя, описание, синтаксис
+Команда предоставляет интерфейс:
+ * Получения имени, описания, синтаксиса
  * Выполнение
 """
 
-from abc import ABC
-from typing import List
+from typing import List, Callable
 
 
-class Cmd(ABC):
+class Cmd:
     """
     Команда.
     """
 
-    def __init__(self, name: str, description: str, syntax: str):
+    def __init__(self, name: str, aliases: List[str], description: str, syntax: str, run_func: Callable):
         """
         :param name: Имя
         :param description: Описание
         :param syntax: Синтаксис
+        :param run_func: Функция выполнения
+        :param syntax: Синонимы
 
         :raise: ValueError
         """
@@ -34,7 +35,9 @@ class Cmd(ABC):
             raise ValueError('Некорректно задан синтаксис!')
         self._syntax: str = syntax
 
-        self._names: List[str] = [name] + self._get_aliases()
+        self._names: List[str] = [name] + aliases
+
+        self._run_func = run_func
 
     def get_name(self) -> str:
         """
@@ -47,24 +50,6 @@ class Cmd(ABC):
         Получить описание
         """
         return self._description
-
-    def get_syntax(self) -> str:
-        """
-        Получить синтаксис
-        """
-        return self._syntax
-
-    def _get_aliases(self) -> List[str]:
-        """
-        Получить список синонимов
-        """
-        return []
-
-    def get_names(self) -> List[str]:
-        """
-        Получить список имен с учетом синонимов
-        """
-        return self._names
 
     def run(self, params) -> List[str]:
         """
@@ -80,15 +65,7 @@ class Cmd(ABC):
             names = '|'.join(self._names)
             return [self._description, f'{names} {self._syntax}']
 
-        return self._run(params)
-
-    def _run(self, params: List[str]) -> List[str]:
-        """
-        Реализация выполнения команды
-        :param params: Параметры
-        :raise: InvalidCmdParams
-        """
-        raise NotImplementedError()
+        return self._run_func(params)
 
 
 CMD_PARAM_HELP = '?'
